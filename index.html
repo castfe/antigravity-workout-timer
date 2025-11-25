@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Timer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>WORKOUT TIMER</h1>
+        </header>
+
+        <main>
+            <!-- Configuration Form -->
+            <section id="config-section">
+                <div class="input-group">
+                    <label for="set-name">Exercise Name</label>
+                    <input type="text" id="set-name" placeholder="e.g., Bench Press" value="Exercise">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="num-sets">Sets</label>
+                        <input type="number" id="num-sets" value="5" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="work-time">Work (sec)</label>
+                        <input type="number" id="work-time" value="30" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="rest-time">Rest (sec)</label>
+                        <input type="number" id="rest-time" value="15" min="1">
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button id="start-btn">START WORKOUT</button>
+                    <button id="save-btn" class="secondary-btn">SAVE PRESET</button>
+                </div>
+
+                <!-- Saved Workouts Section -->
+                <div id="saved-workouts-section">
+                    <h3>Saved Workouts</h3>
+                    <div id="saved-workouts-list"></div>
+                </div>
+            </section>
+
+            <!-- Timer Display -->
+            <section id="timer-section" class="hidden">
+                <div class="timer-header">
+                    <h2 id="current-exercise-name">Exercise</h2>
+                    <div class="set-indicator">
+                        SET <span id="current-set">1</span> / <span id="total-sets">5</span>
+                    </div>
+                </div>
+
+                <div class="timer-display">
+                    <div id="phase-indicator">GET READY</div>
+                    <div id="time-display">00:00</div>
+                </div>
+
+                <button id="stop-btn">STOP</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="audio-start-set" src="start_set.wav"></audio>
+    <audio id="audio-end-set" src="end_set.wav"></audio>
+    <audio id="audio-start-rest" src="start_rest.wav"></audio>
+    <audio id="audio-end-rest" src="end_rest.wav"></audio>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

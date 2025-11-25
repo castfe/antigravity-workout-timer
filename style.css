@@ -1,0 +1,271 @@
+:root {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #ffffff;
+    --accent-work: #00ff9d;
+    /* Neon Green */
+    --accent-rest: #ff0055;
+    /* Neon Pink */
+    --accent-idle: #00ccff;
+    /* Neon Blue */
+    --input-bg: #2d2d2d;
+    --font-main: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    background: linear-gradient(45deg, var(--accent-idle), var(--accent-work));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Form Styles */
+.input-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.input-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #aaa;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--input-bg);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.2rem;
+    font-family: var(--font-main);
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--accent-idle);
+}
+
+button {
+    width: 100%;
+    padding: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+#start-btn {
+    background-color: var(--accent-work);
+    color: #000;
+    margin-top: 1rem;
+}
+
+#stop-btn {
+    background-color: #333;
+    color: #fff;
+    margin-top: 2rem;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.button-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.button-row button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.secondary-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+.secondary-btn:hover {
+    background-color: #444;
+}
+
+/* Saved Workouts Section */
+#saved-workouts-section {
+    margin-top: 2rem;
+    text-align: left;
+}
+
+#saved-workouts-section h3 {
+    font-size: 1rem;
+    color: #aaa;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+#saved-workouts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.workout-preset {
+    background-color: var(--input-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workout-preset:hover {
+    border-color: var(--accent-idle);
+    background-color: #333;
+}
+
+.workout-preset-info {
+    flex: 1;
+}
+
+.workout-preset-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.workout-preset-details {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.workout-preset-delete {
+    background-color: var(--accent-rest);
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.workout-preset-delete:hover {
+    opacity: 0.8;
+}
+
+/* Timer Styles */
+.hidden {
+    display: none;
+}
+
+.timer-header {
+    margin-bottom: 3rem;
+}
+
+#current-exercise-name {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.set-indicator {
+    font-size: 1.2rem;
+    color: #888;
+    font-weight: 700;
+}
+
+.timer-display {
+    background-color: var(--card-bg);
+    padding: 3rem 1rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--accent-idle);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#phase-indicator {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+#time-display {
+    font-size: 5rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+/* Phase Specific Styles */
+body.phase-work .timer-display {
+    border-color: var(--accent-work);
+    box-shadow: 0 0 30px rgba(0, 255, 157, 0.2);
+}
+
+body.phase-work #phase-indicator {
+    color: var(--accent-work);
+}
+
+body.phase-rest .timer-display {
+    border-color: var(--accent-rest);
+    box-shadow: 0 0 30px rgba(255, 0, 85, 0.2);
+}
+
+body.phase-rest #phase-indicator {
+    color: var(--accent-rest);
+}
+
+body.phase-finished .timer-display {
+    border-color: #fff;
+}
+
+body.phase-finished #phase-indicator {
+    color: #fff;
+}

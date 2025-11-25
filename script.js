@@ -1,0 +1,248 @@
+const configSection = document.getElementById('config-section');
+const timerSection = document.getElementById('timer-section');
+const startBtn = document.getElementById('start-btn');
+const stopBtn = document.getElementById('stop-btn');
+
+const inputs = {
+    name: document.getElementById('set-name'),
+    sets: document.getElementById('num-sets'),
+    work: document.getElementById('work-time'),
+    rest: document.getElementById('rest-time')
+};
+
+const display = {
+    name: document.getElementById('current-exercise-name'),
+    currentSet: document.getElementById('current-set'),
+    totalSets: document.getElementById('total-sets'),
+    phase: document.getElementById('phase-indicator'),
+    time: document.getElementById('time-display')
+};
+
+const audio = {
+    startSet: document.getElementById('audio-start-set'),
+    endSet: document.getElementById('audio-end-set'),
+    startRest: document.getElementById('audio-start-rest'),
+    endRest: document.getElementById('audio-end-rest')
+};
+
+let state = {
+    currentSet: 1,
+    totalSets: 5,
+    workTime: 30,
+    restTime: 15,
+    currentTime: 0,
+    phase: 'IDLE', // IDLE, WORK, REST, FINISHED
+    intervalId: null
+};
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function playSound(sound) {
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log('Audio play failed:', e));
+    }
+}
+
+function updateDisplay() {
+    display.time.textContent = formatTime(state.currentTime);
+    display.currentSet.textContent = state.currentSet;
+
+    // Update Phase UI
+    document.body.className = ''; // Reset classes
+    if (state.phase === 'WORK') {
+        document.body.classList.add('phase-work');
+        display.phase.textContent = 'WORK';
+    } else if (state.phase === 'REST') {
+        document.body.classList.add('phase-rest');
+        display.phase.textContent = 'REST';
+    } else if (state.phase === 'FINISHED') {
+        document.body.classList.add('phase-finished');
+        display.phase.textContent = 'DONE';
+    } else {
+        display.phase.textContent = 'GET READY';
+    }
+}
+
+function switchPhase(newPhase) {
+    state.phase = newPhase;
+
+    if (newPhase === 'WORK') {
+        state.currentTime = state.workTime;
+        playSound(audio.startSet);
+    } else if (newPhase === 'REST') {
+        state.currentTime = state.restTime;
+        playSound(audio.startRest);
+    } else if (newPhase === 'FINISHED') {
+        state.currentTime = 0;
+        clearInterval(state.intervalId);
+        playSound(audio.endSet);
+        updateDisplay();
+        return; // Don't restart timer
+    }
+
+    updateDisplay();
+    // Restart timer after phase switch
+    if (state.intervalId) clearInterval(state.intervalId);
+    state.intervalId = setInterval(tick, 1000);
+}
+
+function handlePhaseEnd() {
+    clearInterval(state.intervalId); // Stop the timer temporarily
+
+    let nextPhase = '';
+    let endSound = null;
+
+    if (state.phase === 'WORK') {
+        endSound = audio.endSet;
+        if (state.currentSet < state.totalSets) {
+            nextPhase = 'REST';
+        } else {
+            nextPhase = 'FINISHED';
+        }
+    } else if (state.phase === 'REST') {
+        endSound = audio.endRest;
+        state.currentSet++;
+        nextPhase = 'WORK';
+    }
+
+    playSound(endSound);
+
+    // Wait for audio to finish (approx 2 seconds) before switching
+    setTimeout(() => {
+        switchPhase(nextPhase);
+    }, 2000);
+}
+
+function tick() {
+    if (state.currentTime > 0) {
+        state.currentTime--;
+        updateDisplay();
+    } else {
+        handlePhaseEnd();
+    }
+}
+
+function startTimer() {
+    // Get values
+    state.totalSets = parseInt(inputs.sets.value);
+    state.workTime = parseInt(inputs.work.value);
+    state.restTime = parseInt(inputs.rest.value);
+    state.currentSet = 1;
+
+    display.name.textContent = inputs.name.value || 'Exercise';
+    display.totalSets.textContent = state.totalSets;
+
+    // UI Switch
+    configSection.classList.add('hidden');
+    timerSection.classList.remove('hidden');
+
+    // Start
+    switchPhase('WORK'); // This starts the interval
+}
+
+function stopTimer() {
+    clearInterval(state.intervalId);
+    state.phase = 'IDLE';
+    document.body.className = '';
+
+    configSection.classList.remove('hidden');
+    timerSection.classList.add('hidden');
+}
+
+startBtn.addEventListener('click', startTimer);
+stopBtn.addEventListener('click', stopTimer);
+
+// ===== PERSISTENCE LOGIC =====
+const STORAGE_KEY = 'workout_presets';
+const saveBtn = document.getElementById('save-btn');
+const savedWorkoutsList = document.getElementById('saved-workouts-list');
+
+function getPresets() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+function savePresets(presets) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+}
+
+function saveWorkout() {
+    const name = inputs.name.value.trim() || 'Unnamed Workout';
+    const sets = parseInt(inputs.sets.value);
+    const work = parseInt(inputs.work.value);
+    const rest = parseInt(inputs.rest.value);
+
+    const preset = {
+        id: Date.now(),
+        name,
+        sets,
+        work,
+        rest
+    };
+
+    const presets = getPresets();
+    presets.push(preset);
+    savePresets(presets);
+    renderPresets();
+}
+
+function applyWorkout(preset) {
+    inputs.name.value = preset.name;
+    inputs.sets.value = preset.sets;
+    inputs.work.value = preset.work;
+    inputs.rest.value = preset.rest;
+}
+
+function deleteWorkout(id) {
+    let presets = getPresets();
+    presets = presets.filter(p => p.id !== id);
+    savePresets(presets);
+    renderPresets();
+}
+
+function renderPresets() {
+    const presets = getPresets();
+
+    if (presets.length === 0) {
+        savedWorkoutsList.innerHTML = '<p style="color: #666; font-size: 0.9rem;">No saved workouts yet.</p>';
+        return;
+    }
+
+    savedWorkoutsList.innerHTML = presets.map(preset => `
+        <div class="workout-preset" data-id="${preset.id}">
+            <div class="workout-preset-info">
+                <div class="workout-preset-name">${preset.name}</div>
+                <div class="workout-preset-details">${preset.sets} sets × ${preset.work}s work / ${preset.rest}s rest</div>
+            </div>
+            <button class="workout-preset-delete" data-id="${preset.id}">DELETE</button>
+        </div>
+    `).join('');
+
+    // Add event listeners
+    document.querySelectorAll('.workout-preset').forEach(el => {
+        el.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('workout-preset-delete')) {
+                const id = parseInt(el.dataset.id);
+                const preset = presets.find(p => p.id === id);
+                if (preset) applyWorkout(preset);
+            }
+        });
+    });
+
+    document.querySelectorAll('.workout-preset-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = parseInt(btn.dataset.id);
+            deleteWorkout(id);
+        });
+    });
+}
+
+// Initialize
+saveBtn.addEventListener('click', saveWorkout);
+renderPresets();
