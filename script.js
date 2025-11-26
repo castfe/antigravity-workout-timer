@@ -19,10 +19,13 @@ const display = {
 };
 
 const audio = {
-    startSet: document.getElementById('audio-start-set'),
-    endSet: document.getElementById('audio-end-set'),
-    startRest: document.getElementById('audio-start-rest'),
-    endRest: document.getElementById('audio-end-rest')
+    element: document.getElementById('main-audio'),
+    files: {
+        startSet: 'start_set.wav',
+        endSet: 'end_set.wav',
+        startRest: 'start_rest.wav',
+        endRest: 'end_rest.wav'
+    }
 };
 
 let state = {
@@ -41,10 +44,10 @@ function formatTime(seconds) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-function playSound(sound) {
-    if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(e => console.log('Audio play failed:', e));
+function playSound(filename) {
+    if (audio.element && filename) {
+        audio.element.src = filename;
+        audio.element.play().catch(e => console.log('Audio play failed:', e));
     }
 }
 
@@ -73,14 +76,14 @@ function switchPhase(newPhase) {
 
     if (newPhase === 'WORK') {
         state.currentTime = state.workTime;
-        playSound(audio.startSet);
+        playSound(audio.files.startSet);
     } else if (newPhase === 'REST') {
         state.currentTime = state.restTime;
-        playSound(audio.startRest);
+        playSound(audio.files.startRest);
     } else if (newPhase === 'FINISHED') {
         state.currentTime = 0;
         clearInterval(state.intervalId);
-        playSound(audio.endSet);
+        playSound(audio.files.endSet);
         updateDisplay();
         return; // Don't restart timer
     }
@@ -98,14 +101,14 @@ function handlePhaseEnd() {
     let endSound = null;
 
     if (state.phase === 'WORK') {
-        endSound = audio.endSet;
+        endSound = audio.files.endSet;
         if (state.currentSet < state.totalSets) {
             nextPhase = 'REST';
         } else {
             nextPhase = 'FINISHED';
         }
     } else if (state.phase === 'REST') {
-        endSound = audio.endRest;
+        endSound = audio.files.endRest;
         state.currentSet++;
         nextPhase = 'WORK';
     }
@@ -128,19 +131,22 @@ function tick() {
 }
 
 function unlockAudio() {
-    Object.values(audio).forEach(sound => {
-        sound.muted = true;
-        const playPromise = sound.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                sound.pause();
-                sound.currentTime = 0;
-                sound.muted = false;
-            }).catch(error => {
-                console.log('Audio unlock failed:', error);
-            });
-        }
-    });
+    // Play silence or just play/pause the single element to bless it
+    // We'll set it to one of the sounds but volume 0 or just pause immediately
+    // Setting src to empty or a silent wav is safer, but let's try just play/pause
+    // with the first sound we might need.
+    audio.element.src = audio.files.startSet;
+    audio.element.muted = true;
+    const playPromise = audio.element.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            audio.element.pause();
+            audio.element.currentTime = 0;
+            audio.element.muted = false;
+        }).catch(error => {
+            console.log('Audio unlock failed:', error);
+        });
+    }
 }
 
 function startTimer() {
