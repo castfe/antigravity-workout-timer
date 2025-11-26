@@ -30,9 +30,9 @@ const audio = {
 
 let state = {
     currentSet: 1,
-    totalSets: 5,
-    workTime: 30,
-    restTime: 15,
+    totalSets: 3,
+    workTime: 15,
+    restTime: 3,
     currentTime: 0,
     phase: 'IDLE', // IDLE, WORK, REST, FINISHED
     intervalId: null
