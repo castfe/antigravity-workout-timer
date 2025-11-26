@@ -127,7 +127,26 @@ function tick() {
     }
 }
 
+function unlockAudio() {
+    Object.values(audio).forEach(sound => {
+        sound.muted = true;
+        const playPromise = sound.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                sound.pause();
+                sound.currentTime = 0;
+                sound.muted = false;
+            }).catch(error => {
+                console.log('Audio unlock failed:', error);
+            });
+        }
+    });
+}
+
 function startTimer() {
+    // Unlock audio contexts for mobile
+    unlockAudio();
+
     // Get values
     state.totalSets = parseInt(inputs.sets.value);
     state.workTime = parseInt(inputs.work.value);
